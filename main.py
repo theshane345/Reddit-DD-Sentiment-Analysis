@@ -15,6 +15,12 @@ for sub in subs:
             length = round((len(text)/40000)*100)
             line = post.title + ' -' + str(length) + '%'
             lst.append(line)
+
+
+
+        #TODO Get link to the post with the highest %
+        #start sentiment analysis w sentiment.vader
+        #TODO read documentation related to sentiment analysis and then learn more about how to code graphs in python
             
         
     print(*lst, sep="\n")
