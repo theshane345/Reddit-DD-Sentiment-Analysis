@@ -6,9 +6,9 @@ subs = ['investing','stocks','wallstreetbets']
 tick=input("Please enter ticker symbol (leave blank for all)")
 
 for sub in subs:
-    getHot = reddit.subreddit(sub).new(limit=None)
+    getNew = reddit.subreddit(sub).new(limit=None)
     lst = []
-    for post in getHot:
+    for post in getNew:
 
         if 'dd' in post.title.lower() and tick in post.title.lower() and 'reddit' not in post.title.lower()  and '?' not in post.title.lower() :
             text = post.selftext
