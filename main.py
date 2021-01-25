@@ -2,6 +2,7 @@ import praw
 import nltk 
 from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 import math
+import matplotlib.pyplot as plt
 import datetime as dt
 import pandas as pd
 import numpy as np
@@ -13,6 +14,9 @@ reddit = praw.Reddit(client_id='lELNGnTUoXms4Q', client_secret='vjkYp6AJfkA4lHRa
 
 subs = ['investing','stocks','wallstreetbets']
 tick=input("Please enter ticker symbol (leave blank for all)")
+
+# sub_reddits = reddit.subreddit('wallstreetbets')
+# stocks = ["SPCE", "LULU", "CCL", "SDC"]
 
 
 def commentSentiment(ticker, urlT):
@@ -54,6 +58,7 @@ def commentSentiment(ticker, urlT):
         averageScore = averageScore + df.label[position]
         position += 1
     averageScore = averageScore/len(df.label) 
+    print (averageScore)
     
     return(averageScore)
 
@@ -75,23 +80,82 @@ def latestComment(ticker, urlT):
     updateDates.sort()
     return(updateDates[-1])
 
+def get_date(date):
+    return dt.datetime.fromtimestamp(date)
 
+submission_statistics = []
+d = {}
 for sub in subs:
     getNew = reddit.subreddit(sub).new(limit=None)
     lst = []
+    test = ''
     for post in getNew:
 
         if 'dd' in post.title.lower() and tick in post.title.lower() and 'reddit' not in post.title.lower()  and '?' not in post.title.lower() :
+            words = post.title.lower().split()
+            if 'dd' in words[1:]:
+                test = words[words.index('dd')-1]
             text = post.selftext
             length = round((len(text)/40000)*100)
             line = post.title + ' -' + str(length) + '%'
             lst.append(line)
+            d = {}
+            d['ticker'] = test
+            d['num_comments'] = post.num_comments
+            d['comment_sentiment_average'] = commentSentiment(sub, post.url)
+            if d['comment_sentiment_average'] == 0.000000:
+                continue
+            d['latest_comment_date'] = latestComment(sub, post.url)
+            d['score'] = post.score
+            d['upvote_ratio'] = post.upvote_ratio
+            d['date'] = post.created_utc
+            d['domain'] = post.domain
+            d['num_crossposts'] = post.num_crossposts
+            d['author'] = post.author
+            submission_statistics.append(d)
+    print(*lst, sep="\n")
+
+dfSentimentStocks = pd.DataFrame(submission_statistics)
+
+_timestampcreated = dfSentimentStocks["date"].apply(get_date)
+dfSentimentStocks = dfSentimentStocks.assign(timestamp = _timestampcreated)
+
+_timestampcomment = dfSentimentStocks["latest_comment_date"].apply(get_date)
+dfSentimentStocks = dfSentimentStocks.assign(commentdate = _timestampcomment)
+
+dfSentimentStocks.sort_values("latest_comment_date", axis = 0, ascending = True,inplace = True, na_position ='last') 
+
+dfSentimentStocks
+
+
+dfSentimentStocks.author.value_counts()
+
+dfSentimentStocks.to_csv('Reddit_Sentiment_Equity.csv', index=False) 
 
 
 
-        #TODO Get link to the post with the highest %
-        #start sentiment analysis w sentiment.vader
-        #TODO read documentation related to sentiment analysis and then learn more about how to code graphs in python
+
+#         #TODO Get link to the post with the highest %
+#         #start sentiment analysis w sentiment.vader
+#         #TODO read documentation related to sentiment analysis and then learn more about how to code graphs in python
             
         
-    print(*lst, sep="\n")
+#for ticker in stocks:
+#     for submission in reddit.subreddit('wallstreetbets').search(ticker, limit=130):
+#         if submission.domain != "self.wallstreetbets":
+#             continue
+#         d = {}
+#         d['ticker'] = ticker
+#         d['num_comments'] = submission.num_comments
+#         d['comment_sentiment_average'] = commentSentiment(ticker, submission.url)
+#         if d['comment_sentiment_average'] == 0.000000:
+#             continue
+#         d['latest_comment_date'] = latestComment(ticker, submission.url)
+#         d['score'] = submission.score
+#         d['upvote_ratio'] = submission.upvote_ratio
+#         d['date'] = submission.created_utc
+#         d['domain'] = submission.domain
+#         d['num_crossposts'] = submission.num_crossposts
+#         d['author'] = submission.author
+#         submission_statistics.append(d)
+    
