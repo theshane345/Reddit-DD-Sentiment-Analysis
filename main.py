@@ -47,7 +47,7 @@ def searchAllTickers():
         getNew = reddit.subreddit(sub).new(limit=None)
         lst = []
         test = ''
-    
+        #TODO Figure out how to extract the ticker from the title and put it into the csv
         for post in getNew:
             if 'dd' in post.title.lower()  and 'reddit' not in post.title.lower()  and '?' not in post.title.lower() and any(tic in post.title for tic in suprList ) :
                 print (post.title)
