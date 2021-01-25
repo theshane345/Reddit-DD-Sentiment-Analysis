@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import datetime as dt
 import pandas as pd
 import numpy as np
+import csv
 
 nltk.download('vader_lexicon')
 nltk.download('stopwords')
@@ -17,6 +18,17 @@ tick=input("Please enter ticker symbol (leave blank for all)")
 
 # sub_reddits = reddit.subreddit('wallstreetbets')
 # stocks = ["SPCE", "LULU", "CCL", "SDC"]
+
+
+def searchAllTickers():
+    lst6=[]
+    f=open('output.txt','r')
+
+    for line in f:
+        result = f.readlines(0)
+        test = str(result).replace('\\n', '')
+        lst6.append(test)
+    print (lst6)
 
 
 def commentSentiment(ticker, urlT):
@@ -92,6 +104,7 @@ for sub in subs:
     for post in getNew:
 
         if 'dd' in post.title.lower() and tick in post.title.lower() and 'reddit' not in post.title.lower()  and '?' not in post.title.lower() :
+            searchAllTickers()
             words = post.title.lower().split()
             if 'dd' in words[1:]:
                 test = words[words.index('dd')-1]
