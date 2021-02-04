@@ -13,8 +13,9 @@ nltk.download('stopwords')
 
 reddit = praw.Reddit(client_id='lELNGnTUoXms4Q', client_secret='vjkYp6AJfkA4lHRaiA_S2KkTQl_ndQ', user_agent='DD Analysis')
 
-subs = ['investing','stocks','wallstreetbets']
+subs = ['investing','stocks','wallstreetbets','stockmarket','options']
 tick=input("Please enter ticker symbol (leave blank for all)")
+keyword=['dd', 'analysis']
 
 # sub_reddits = reddit.subreddit('wallstreetbets')
 # stocks = ["SPCE", "LULU", "CCL", "SDC"]
@@ -104,31 +105,33 @@ def searchSpecificTick():
         lst = []
         test = ''
         for post in getNew:
+            for key in keyword:
 
-            if 'dd' in post.title.lower() and tick in post.title.lower() and 'reddit' not in post.title.lower()  and '?' not in post.title.lower() :
-                
-                words = post.title.lower().split()
-                if 'dd' in words[1:]:
-                    test = words[words.index('dd')-1]
-                text = post.selftext
-                length = round((len(text)/40000)*100)
-                line = post.title + ' -' + str(length) + '%'
-                lst.append(line)
-                d = {}
-                d['ticker'] = tick
-                d['num_comments'] = post.num_comments
-                d['comment_sentiment_average'] = commentSentiment(sub, post.url)
-                if d['comment_sentiment_average'] == 0.000000:
-                    continue
-                d['latest_comment_date'] = latestComment(sub, post.url)
-                d['score'] = post.score
-                d['upvote_ratio'] = post.upvote_ratio
-                d['date'] = post.created_utc
-                d['domain'] = post.domain
-                d['num_crossposts'] = post.num_crossposts
-                d['author'] = post.author
-                submission_statistics.append(d)
+                if key in post.title.lower() and tick in post.title.lower() and 'reddit' not in post.title.lower() and '?' not in post.title.lower():
+                    
+                    words = post.title.lower().split()
+                    if 'dd' in words[1:]:
+                        test = words[words.index('dd')-1]
+                    text = post.selftext
+                    length = round((len(text)/40000)*100)
+                    line = post.title + ' -' + str(length) + '%'
+                    lst.append(line)
+                    d = {}
+                    d['ticker'] = tick
+                    d['num_comments'] = post.num_comments
+                    d['comment_sentiment_average'] = commentSentiment(sub, post.url)
+                    if d['comment_sentiment_average'] == 0.000000:
+                        continue
+                    d['latest_comment_date'] = latestComment(sub, post.url)
+                    d['score'] = post.score
+                    d['upvote_ratio'] = post.upvote_ratio
+                    d['date'] = post.created_utc
+                    d['domain'] = post.domain
+                    d['num_crossposts'] = post.num_crossposts
+                    d['author'] = post.author
+                    submission_statistics.append(d)
         print(*lst, sep="\n")
+#TO:DO ERROR HANDLING
 
     dfSentimentStocks = pd.DataFrame(submission_statistics)
 
