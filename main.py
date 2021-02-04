@@ -4,6 +4,7 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 import math
 import matplotlib.pyplot as plt
 import datetime as dt
+from datetime import date
 import pandas as pd
 import numpy as np
 import csv
@@ -16,6 +17,7 @@ reddit = praw.Reddit(client_id='lELNGnTUoXms4Q', client_secret='vjkYp6AJfkA4lHRa
 subs = ['investing','stocks','wallstreetbets','stockmarket','options']
 tick=input("Please enter ticker symbol (leave blank for all)")
 keyword=['dd', 'analysis']
+excluded=['reddit', 'ladder','add', 'added' ]
 
 # sub_reddits = reddit.subreddit('wallstreetbets')
 # stocks = ["SPCE", "LULU", "CCL", "SDC"]
@@ -50,32 +52,27 @@ def searchAllTickers():
         test = ''
         #TODO Figure out how to extract the ticker from the title and put it into the csv
         for post in getNew:
-            if 'dd' in post.title.lower()  and 'reddit' not in post.title.lower()  and '?' not in post.title.lower() and any(tic in post.title for tic in suprList ) :
-                print (post.title)
-                for tic in suprList:
-                   if tic in post.title:
-                    tezt = tic + ' '
-                words = post.title.lower().split()
-                if 'dd' in words[1:]:
-                    test = words[words.index('dd')-1]
-                text = post.selftext
-                length = round((len(text)/40000)*100)
-                line = post.title + ' -' + str(length) + '%'
-                lst.append(line)
-                d = {}
-                d['ticker'] = tezt
-                d['num_comments'] = post.num_comments
-                d['comment_sentiment_average'] = commentSentiment(sub, post.url)
-                if d['comment_sentiment_average'] == 0.000000:
-                    continue
-                d['latest_comment_date'] = latestComment(sub, post.url)
-                d['score'] = post.score
-                d['upvote_ratio'] = post.upvote_ratio
-                d['date'] = post.created_utc
-                d['domain'] = post.domain
-                d['num_crossposts'] = post.num_crossposts
-                d['author'] = post.author
-                submission_statistics.append(d)
+                if 'dd' in post.title.lower() and 'add' not in post.title.lower()and 'added' not in post.title.lower()and 'ladder' not in post.title.lower() and 'reddit' not in post.title.lower()  and '?' not in post.title.lower() and any(tic in post.title for tic in suprList):
+                    print (post.title)
+                    text = post.selftext
+                    length = round((len(text)/40000)*100)
+                    line = post.title + ' -' + str(length) + '%'
+                    lst.append(line)
+                    d = {}
+                    d['sub'] = sub
+                    d['num_comments'] = post.num_comments
+                    d['comment_sentiment_average'] = commentSentiment(sub, post.url)
+                    if d['comment_sentiment_average'] == 0.000000:
+                        continue
+                    d['latest_comment_date'] = latestComment(sub, post.url)
+                    d['score'] = post.score
+                    d['upvote_ratio'] = post.upvote_ratio
+                    d['date'] = post.created_utc
+                    d['domain'] = post.domain
+                    d['num_crossposts'] = post.num_crossposts
+                    d['author'] = post.author
+                    d['link'] = post.url
+                    submission_statistics.append(d)
         print(*lst, sep="\n")
 
         dfSentimentStocks = pd.DataFrame(submission_statistics)
@@ -93,7 +90,10 @@ def searchAllTickers():
 
         dfSentimentStocks.author.value_counts()
 
-        dfSentimentStocks.to_csv('Reddit_Sentiment_Equity.csv', index=False)
+        today = date.today()
+        d1 = today.strftime("%d_%m_%Y")
+
+        dfSentimentStocks.to_csv(f'All_Tickers\ALL_Reddit_Sentiment_Equity_{d1}.csv', index=False)
 
 
 
@@ -131,24 +131,33 @@ def searchSpecificTick():
                     d['author'] = post.author
                     submission_statistics.append(d)
         print(*lst, sep="\n")
-#TO:DO ERROR HANDLING
 
-    dfSentimentStocks = pd.DataFrame(submission_statistics)
+        if lst != []:
+         
+            dfSentimentStocks = pd.DataFrame(submission_statistics)
 
-    _timestampcreated = dfSentimentStocks["date"].apply(get_date)
-    dfSentimentStocks = dfSentimentStocks.assign(timestamp = _timestampcreated)
+            _timestampcreated = dfSentimentStocks["date"].apply(get_date)
+            dfSentimentStocks = dfSentimentStocks.assign(timestamp = _timestampcreated)
 
-    _timestampcomment = dfSentimentStocks["latest_comment_date"].apply(get_date)
-    dfSentimentStocks = dfSentimentStocks.assign(commentdate = _timestampcomment)
+            _timestampcomment = dfSentimentStocks["latest_comment_date"].apply(get_date)
+            dfSentimentStocks = dfSentimentStocks.assign(commentdate = _timestampcomment)
 
-    dfSentimentStocks.sort_values("latest_comment_date", axis = 0, ascending = True,inplace = True, na_position ='last') 
+            dfSentimentStocks.sort_values("latest_comment_date", axis = 0, ascending = True,inplace = True, na_position ='last') 
 
-    dfSentimentStocks
+            dfSentimentStocks
 
+            dfSentimentStocks.author.value_counts()
 
-    dfSentimentStocks.author.value_counts()
+            today = date.today()
 
-    dfSentimentStocks.to_csv('Reddit_Sentiment_Equity.csv', index=False) 
+            d1 = today.strftime("%d_%m_%Y")
+
+            sym = tick.upper()
+
+            dfSentimentStocks.to_csv(F'Specific_Tickers\{sym}_Reddit_Sentiment_Equity_{d1}.csv', index=False)
+        else:
+            print('no post found in r/' + sub)
+            #todo out put 'None found in sub'
 
 def commentSentiment(ticker, urlT):
     subComments = []

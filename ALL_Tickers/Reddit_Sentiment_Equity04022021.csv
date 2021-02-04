@@ -1,0 +1,10 @@
+sub,num_comments,comment_sentiment_average,latest_comment_date,score,upvote_ratio,date,domain,num_crossposts,author,link,timestamp,commentdate
+investing,11,0.16666666666666666,1612264091.0,21,0.84,1612108851.0,self.investing,0,AtlanticRelation,https://www.reddit.com/r/investing/comments/l9f4li/kinepolis_dd_ebrkin/,2021-01-31 16:00:51,2021-02-02 11:08:11
+investing,7,-0.3333333333333333,1612294237.0,2,0.62,1612291308.0,self.investing,0,Impressive-Swimmer36,https://www.reddit.com/r/investing/comments/lb2ztq/dd_on_ke_holdings_beke/,2021-02-02 18:41:48,2021-02-02 19:30:37
+investing,10,-0.14285714285714285,1612332688.0,19,0.81,1612262721.0,self.investing,0,Currie32,https://www.reddit.com/r/investing/comments/laswse/dd_on_bandwidth_band/,2021-02-02 10:45:21,2021-02-03 06:11:28
+investing,13,0.14285714285714285,1612366888.0,0,0.35,1612308072.0,self.investing,0,Hard_working247,https://www.reddit.com/r/investing/comments/lb9mfy/dd_on_kodak_and_its_potential_to_turn_around_this/,2021-02-02 23:21:12,2021-02-03 15:41:28
+investing,13,-0.2,1612413139.0,18,0.78,1612375985.0,self.investing,0,dlightx,https://www.reddit.com/r/investing/comments/lbu00o/the_case_for_spce_non_thorough_dd/,2021-02-03 18:13:05,2021-02-04 04:32:19
+investing,21,0.4,1612424998.0,15,0.72,1612392907.0,self.investing,0,HX_10,https://www.reddit.com/r/investing/comments/lc0rzo/drone_delivery_canada_takof_dd_10x_upside/,2021-02-03 22:55:07,2021-02-04 07:49:58
+investing,2,0.5,1612430223.0,13,0.89,1612389847.0,self.investing,0,Archangel_Chan,https://www.reddit.com/r/investing/comments/lbznk4/amrn_dd_why_amrn_should_be_considered_a_serious/,2021-02-03 22:04:07,2021-02-04 09:17:03
+investing,7,-0.5,1612440356.0,7,1.0,1612431882.0,self.investing,0,TulioGonzaga,https://www.reddit.com/r/investing/comments/lccasw/dd_vldr_velodyne_lidar_autonomous_vehicle_tech/,2021-02-04 09:44:42,2021-02-04 12:05:56
+investing,27,0.21428571428571427,1612443052.0,42,0.84,1612389787.0,self.investing,0,Invnsbl123,https://www.reddit.com/r/investing/comments/lbzmoi/takof_drone_delivery_canada_dd/,2021-02-03 22:03:07,2021-02-04 12:50:52
