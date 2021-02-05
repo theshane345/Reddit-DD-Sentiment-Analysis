@@ -72,29 +72,32 @@ def searchAllTickers():
                     d['num_crossposts'] = post.num_crossposts
                     d['author'] = post.author
                     d['link'] = post.url
+                    d['length'] = str(length)+'%'
                     submission_statistics.append(d)
         print(*lst, sep="\n")
+        if lst != []:
+            dfSentimentStocks = pd.DataFrame(submission_statistics)
 
-        dfSentimentStocks = pd.DataFrame(submission_statistics)
+            _timestampcreated = dfSentimentStocks["date"].apply(get_date)
+            dfSentimentStocks = dfSentimentStocks.assign(timestamp = _timestampcreated)
 
-        _timestampcreated = dfSentimentStocks["date"].apply(get_date)
-        dfSentimentStocks = dfSentimentStocks.assign(timestamp = _timestampcreated)
+            _timestampcomment = dfSentimentStocks["latest_comment_date"].apply(get_date)
+            dfSentimentStocks = dfSentimentStocks.assign(commentdate = _timestampcomment)
 
-        _timestampcomment = dfSentimentStocks["latest_comment_date"].apply(get_date)
-        dfSentimentStocks = dfSentimentStocks.assign(commentdate = _timestampcomment)
+            dfSentimentStocks.sort_values("latest_comment_date", axis = 0, ascending = True,inplace = True, na_position ='last') 
 
-        dfSentimentStocks.sort_values("latest_comment_date", axis = 0, ascending = True,inplace = True, na_position ='last') 
-
-        dfSentimentStocks
+            dfSentimentStocks
 
 
-        dfSentimentStocks.author.value_counts()
+            dfSentimentStocks.author.value_counts()
 
-        today = date.today()
-        d1 = today.strftime("%d_%m_%Y")
+            today = date.today()
+            d1 = today.strftime("%d_%m_%Y")
 
-        dfSentimentStocks.to_csv(f'All_Tickers\ALL_Reddit_Sentiment_Equity_{d1}.csv', index=False)
-
+            dfSentimentStocks.to_csv(f'All_Tickers\ALL_Reddit_Sentiment_Equity_{d1}.csv', index=False)
+        else:
+            print('no post found in r/' + sub)
+            #todo out put 'None found in sub'
 
 
 def searchSpecificTick():
@@ -129,6 +132,8 @@ def searchSpecificTick():
                     d['domain'] = post.domain
                     d['num_crossposts'] = post.num_crossposts
                     d['author'] = post.author
+                    d['link'] = post.url
+                    d['length'] = str(length)+'%'
                     submission_statistics.append(d)
         print(*lst, sep="\n")
 
