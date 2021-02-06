@@ -1,0 +1,2 @@
+ticker,num_comments,comment_sentiment_average,latest_comment_date,score,upvote_ratio,date,domain,num_crossposts,author,length,link,timestamp,commentdate
+pto,6,-0.5,1612478976.0,4,0.67,1612475495.0,self.investing,0,GreekTycoon,7%,https://www.reddit.com/r/investing/comments/lcr7uu/hns_handshake_protocol_dd_crypto/,2021-02-04 21:51:35,2021-02-04 22:49:36

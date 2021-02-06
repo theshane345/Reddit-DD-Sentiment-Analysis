@@ -1,4 +1,10 @@
 import praw
+import chromedriver_binary
+import string
+from bs4 import BeautifulSoup
+import re
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options 
 import nltk 
 from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 import math
@@ -9,18 +15,45 @@ import pandas as pd
 import numpy as np
 import csv
 
+
+#nltk
 nltk.download('vader_lexicon')
 nltk.download('stopwords')
 
+#praw
 reddit = praw.Reddit(client_id='lELNGnTUoXms4Q', client_secret='vjkYp6AJfkA4lHRaiA_S2KkTQl_ndQ', user_agent='DD Analysis')
 
-subs = ['investing','stocks','wallstreetbets','stockmarket','options']
-tick=input("Please enter ticker symbol (leave blank for all)")
+#reddit scraping data
+subs = ['investing','stocks','wallstreetbets','stockmarket','options','securityanalysis','eupersonalfinance','cryptocurrency']
 keyword=['dd', 'analysis']
 excluded=['reddit', 'ladder','add', 'added' ]
 
-# sub_reddits = reddit.subreddit('wallstreetbets')
-# stocks = ["SPCE", "LULU", "CCL", "SDC"]
+#Yahoo finance
+options = Options()
+options.headless = True
+options.add_argument("--window-size=1920,1080")
+pd.options.display.float_format = '{:.0f}'.format
+
+DRIVER_PATH = "C:\\Users\\Shane\\proj\\chromedriver"
+BASE_URL = 'https://finance.yahoo.com/quote/'
+
+driver = webdriver.Chrome(options=options, executable_path=DRIVER_PATH)
+
+
+#start of program
+financials=input("Would you like to check financials? (y/n)")
+tick=input("Please enter ticker symbol (leave blank for all)")
+
+
+
+
+def getYahooFinancePrice():
+    driver.get(BASE_URL+tick.upper())
+    html = driver.execute_script('return document.body.innerHTML;')
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
+    price = [entry.text for entry in soup.find_all('span', {'class':'Trsdu(0.3s) Fw(b) Fz(36px) Mb(-4px) D(ib)'})]
+    print(price)
+
 
 def searchAllTickers():
     list1 =[]
@@ -42,7 +75,7 @@ def searchAllTickers():
     res3 = list3[1:] 
 
     suprList=str(res)+str(res2)+str(res3)
-    print(suprList)
+    #print(suprList)
 
     submission_statistics = []
     d = {}
@@ -50,7 +83,6 @@ def searchAllTickers():
         getNew = reddit.subreddit(sub).new(limit=None)
         lst = []
         test = ''
-        #TODO Figure out how to extract the ticker from the title and put it into the csv
         for post in getNew:
                 if 'dd' in post.title.lower() and 'add' not in post.title.lower()and 'added' not in post.title.lower()and 'ladder' not in post.title.lower() and 'reddit' not in post.title.lower()  and '?' not in post.title.lower() and any(tic in post.title for tic in suprList):
                     print (post.title)
@@ -62,6 +94,7 @@ def searchAllTickers():
                     d['sub'] = sub
                     d['num_comments'] = post.num_comments
                     d['comment_sentiment_average'] = commentSentiment(sub, post.url)
+                    d['name'] = post.title
                     if d['comment_sentiment_average'] == 0.000000:
                         continue
                     d['latest_comment_date'] = latestComment(sub, post.url)
@@ -71,8 +104,9 @@ def searchAllTickers():
                     d['domain'] = post.domain
                     d['num_crossposts'] = post.num_crossposts
                     d['author'] = post.author
-                    d['link'] = post.url
                     d['length'] = str(length)+'%'
+                    d['link'] = post.url
+                    
                     submission_statistics.append(d)
         print(*lst, sep="\n")
         if lst != []:
@@ -97,7 +131,7 @@ def searchAllTickers():
             dfSentimentStocks.to_csv(f'All_Tickers\ALL_Reddit_Sentiment_Equity_{d1}.csv', index=False)
         else:
             print('no post found in r/' + sub)
-            #todo out put 'None found in sub'
+            
 
 
 def searchSpecificTick():
@@ -110,7 +144,7 @@ def searchSpecificTick():
         for post in getNew:
             for key in keyword:
 
-                if key in post.title.lower() and tick in post.title.lower() and 'reddit' not in post.title.lower() and '?' not in post.title.lower():
+                if key in post.title.lower() and tick in post.title.lower() and 'add' not in post.title.lower()and 'added' not in post.title.lower()and 'ladder' not in post.title.lower()and 'reddit' not in post.title.lower() and '?' not in post.title.lower():
                     
                     words = post.title.lower().split()
                     if 'dd' in words[1:]:
@@ -132,8 +166,9 @@ def searchSpecificTick():
                     d['domain'] = post.domain
                     d['num_crossposts'] = post.num_crossposts
                     d['author'] = post.author
-                    d['link'] = post.url
                     d['length'] = str(length)+'%'
+                    d['link'] = post.url
+                    
                     submission_statistics.append(d)
         print(*lst, sep="\n")
 
@@ -162,7 +197,7 @@ def searchSpecificTick():
             dfSentimentStocks.to_csv(F'Specific_Tickers\{sym}_Reddit_Sentiment_Equity_{d1}.csv', index=False)
         else:
             print('no post found in r/' + sub)
-            #todo out put 'None found in sub'
+            
 
 def commentSentiment(ticker, urlT):
     subComments = []
@@ -227,36 +262,12 @@ def latestComment(ticker, urlT):
 
 def get_date(date):
     return dt.datetime.fromtimestamp(date)
-
-if tick == '':
-    searchAllTickers()
-else:
-    searchSpecificTick()
+if financials.lower() == 'y':
+    getYahooFinancePrice()
 
 
 
-
-#         #TODO Get link to the post with the highest %
-#         #start sentiment analysis w sentiment.vader
-#         #TODO read documentation related to sentiment analysis and then learn more about how to code graphs in python
-            
-        
-#for ticker in stocks:
-#     for submission in reddit.subreddit('wallstreetbets').search(ticker, limit=130):
-#         if submission.domain != "self.wallstreetbets":
-#             continue
-#         d = {}
-#         d['ticker'] = ticker
-#         d['num_comments'] = submission.num_comments
-#         d['comment_sentiment_average'] = commentSentiment(ticker, submission.url)
-#         if d['comment_sentiment_average'] == 0.000000:
-#             continue
-#         d['latest_comment_date'] = latestComment(ticker, submission.url)
-#         d['score'] = submission.score
-#         d['upvote_ratio'] = submission.upvote_ratio
-#         d['date'] = submission.created_utc
-#         d['domain'] = submission.domain
-#         d['num_crossposts'] = submission.num_crossposts
-#         d['author'] = submission.author
-#         submission_statistics.append(d)
-    
+# if tick == '':
+#     searchAllTickers()
+# else:
+#     searchSpecificTick()
